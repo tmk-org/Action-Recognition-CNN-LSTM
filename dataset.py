@@ -40,7 +40,8 @@ class Dataset(Dataset):
             [
                 transforms.Resize(input_shape[-2:], Image.BICUBIC),
                 transforms.ToTensor(),
-                transforms.Normalize(mean, std),
+                transforms.Lambda(lambda x: x.repeat(3,1,1)),
+                # transforms.Normalize(mean, std),
             ]
         )
 
@@ -102,7 +103,8 @@ class Dataset(Dataset):
 
     def _frame_number(self, image_path):
         """ Extracts frame number from filepath """
-        frame_number = int(Path(image_path).stem)
+        # frame_number = int(Path(image_path).stem)
+        frame_number = int(Path(image_path).stem.split("_")[-1])
         return frame_number
 
     def _pad_to_length(self, sequence):
@@ -119,12 +121,16 @@ class Dataset(Dataset):
 
         # Sort frame sequence based on frame number
         image_paths = sorted(
-            glob.glob(f"{sequence_path}/*.jpg"),
+            glob.glob(f"{sequence_path}/*.png"),
+            # glob.glob(f"{sequence_path}/*.jpg"),
             key=lambda path: self._frame_number(path),
         )
 
         # Pad frames sequences shorter than `self.sequence_length` to length
-        image_paths = self._pad_to_length(image_paths)
+        try:
+            image_paths = self._pad_to_length(image_paths)
+        except IndexError:
+            print(sequence_path)
 
         if self.training:
             # Randomly choose sample interval and start frame
@@ -147,6 +153,10 @@ class Dataset(Dataset):
 
         # Extract frames as tensors
         image_sequence = []
+        try:
+            assert (sample_interval != 0)
+        except AssertionError:
+            print(sample_interval)
         for i in range(start_i, len(image_paths), sample_interval):
             # Append up to sequence_length
             if (

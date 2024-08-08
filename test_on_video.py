@@ -9,7 +9,7 @@ import skvideo.io
 import tqdm
 from hydra.core.hydra_config import HydraConfig
 from omegaconf import DictConfig, OmegaConf
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFont
 
 from data.extract_frames import extract_frames
 from dataset import *
@@ -99,7 +99,7 @@ def main(cfg: DictConfig) -> None:
 
         # Draw label on frame
         d = ImageDraw.Draw(frame)
-        d.text(xy=(10, 10), text=predicted_label, fill=(255, 255, 255))
+        d.text(xy=(10, 10), text=predicted_label, fill=(255, 255, 255), font=ImageFont.truetype('arial.ttf', 60))
 
         output_frames += [frame]
 

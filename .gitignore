@@ -1,0 +1,7 @@
+*.pyc
+outputs/
+data/
+venv/
+!data/check_extract_frames.py
+!data/download_ucf101.sh
+!data/extract_frames.py
