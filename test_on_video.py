@@ -54,6 +54,7 @@ def main(cfg: DictConfig) -> None:
     video_path = (
         Path(cfg.dataset.root) / cfg.dataset.name / cfg.test.video_name
     ).as_posix()
+    
     save_gif_name = Path(cfg.test.video_name).stem
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -63,7 +64,9 @@ def main(cfg: DictConfig) -> None:
         [
             transforms.Resize(input_shape[-2:], Image.BICUBIC),
             transforms.ToTensor(),
-            transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
+            transforms.Lambda(lambda x: x[0]),
+            transforms.Lambda(lambda x: x.repeat(3,1,1)),
+            # transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
         ]
     )
 
@@ -90,6 +93,7 @@ def main(cfg: DictConfig) -> None:
         extract_frames(video_path), file=tqdm_out, desc="Processing frames"
     ):
         image_tensor = Variable(transform(frame)).to(device)
+        # print(image_tensor[0] == image_tensor[1])
         image_tensor = image_tensor.view(1, 1, *image_tensor.shape)
 
         # Get label prediction for frame
@@ -97,6 +101,8 @@ def main(cfg: DictConfig) -> None:
             prediction = model(image_tensor)
             predicted_label = labels[prediction.argmax(1).item()]
 
+        # print(prediction)
+        # print(predicted_label)
         # Draw label on frame
         d = ImageDraw.Draw(frame)
         d.text(xy=(10, 10), text=predicted_label, fill=(255, 255, 255), font=ImageFont.truetype('arial.ttf', 60))

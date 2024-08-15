@@ -1,6 +1,9 @@
 import cv2
 import os
 import argparse
+import numpy as np
+
+from PIL import Image
 
 def create_video_from_frames(frame_folder, output_video_path, frame_rate):
     # Check if the frame folder exists
@@ -24,6 +27,7 @@ def create_video_from_frames(frame_folder, output_video_path, frame_rate):
         return
 
     height, width, layers = first_frame.shape
+    print(first_frame.shape)
 
     # Initialize video writer
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # Use 'XVID' for .avi, 'mp4v' for .mp4
@@ -32,11 +36,17 @@ def create_video_from_frames(frame_folder, output_video_path, frame_rate):
     # Write each frame to the video
     for frame in frames:
         img_path = os.path.join(frame_folder, frame)
-        img = cv2.imread(img_path)
+        img = Image.open(img_path)
+        img = np.asarray(img)
+        img = np.array([img, img, img]).transpose(1, 2, 0)
+        
+        # img = cv2.imread(img_path)
         if img is None:
             print(f"Warning: Unable to read frame '{img_path}'. Skipping.")
             continue
+        print(img.shape)
         video.write(img)
+        # video.write(img)
 
     # Release the video writer
     video.release()
