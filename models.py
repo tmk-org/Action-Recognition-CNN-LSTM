@@ -3,13 +3,15 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.autograd import Variable
-from torchvision.models import resnet152
+from torchvision.models import resnet152, resnet50, resnet18
 
 
 class Encoder(nn.Module):
     def __init__(self, latent_dim):
         super(Encoder, self).__init__()
-        resnet = resnet152(pretrained=True)
+        # resnet = resnet152(pretrained=True)
+        # resnet = resnet50(pretrained=True)
+        resnet = resnet18(pretrained=True)
         self.feature_extractor = nn.Sequential(*list(resnet.children())[:-1])
         self.final = nn.Sequential(
             nn.Linear(resnet.fc.in_features, latent_dim),

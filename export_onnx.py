@@ -1,3 +1,4 @@
+
 import argparse
 import datetime
 import logging
@@ -85,6 +86,7 @@ def main(cfg: DictConfig) -> None:
     (_x, _y) = next(iter(test_dataloader))
     _x = _x.to(device)
     
+    logger.info("exporting the model..")
     torch.onnx.export(
         model,
         _x,
@@ -95,38 +97,6 @@ def main(cfg: DictConfig) -> None:
         input_names=["input"],
         output_names=["output"]
     )
-
-    test_metrics = {"loss": [], "acc": []}
-    timer = Timer()
-    for batch_i, (X, y) in enumerate(test_dataloader):
-        batch_i += 1
-        image_sequences = Variable(X.to(device), requires_grad=False)
-        labels = Variable(y, requires_grad=False).to(device)
-        with torch.no_grad():
-            # Reset LSTM hidden state
-            model.lstm.reset_hidden_state()
-            # Get sequence predictions
-            predictions = model(image_sequences)
-
-        # Compute accuracy using the most common prediction for each sequence
-        loss = criterion(predictions, labels)
-        acc = (predictions.detach().argmax(1) == labels).cpu().numpy().mean()
-
-        # Keep track of accuracy
-        test_metrics["loss"].append(loss.item())
-        test_metrics["acc"].append(acc)
-
-        # Determine approximate time left
-        batches_done = batch_i - 1
-        batches_left = len(test_dataloader) - batches_done
-        time_left = datetime.timedelta(seconds=batches_left * timer.seconds())
-        timer.reset()
-
-        # Log test performance
-        logger.info(
-            f'Testing - [Batch: {batch_i}/{len(test_dataloader)}] [Loss: {np.mean(test_metrics["loss"]):.3f}] [Acc: {np.mean(test_metrics["acc"]):.3f}] [ETA: {time_left}]'
-        )
-
 
 if __name__ == "__main__":
     main()

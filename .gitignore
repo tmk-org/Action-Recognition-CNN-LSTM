@@ -1,5 +1,6 @@
 *.pyc
-outputs/
+*.mp4
+outputs*/
 data/
 venv/
 !data/check_extract_frames.py

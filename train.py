@@ -19,7 +19,8 @@ from dataset import *
 from models import *
 
 
-@hydra.main(config_path="./configs", config_name="default.yaml")
+# @hydra.main(config_path="./configs", config_name="default.yaml")
+@hydra.main(config_path="./configs", config_name="default_sub4.yaml")
 def main(cfg: DictConfig) -> None:
 
     if "experiments" in cfg.keys():

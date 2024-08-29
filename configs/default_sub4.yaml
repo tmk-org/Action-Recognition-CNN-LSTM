@@ -25,9 +25,9 @@ train:
   image_height: 224
   image_width: 224
   channels: 3
-  latent_dim: 512
+  latent_dim: 128
   lstm_layers: 3
-  hidden_dim: 1024
+  hidden_dim: 256
   bidirectional: True
   attention: True
   num_workers: 4
@@ -45,9 +45,9 @@ test:
   image_height: 224
   image_width: 224
   channels: 3
-  latent_dim: 512
+  latent_dim: 128
   lstm_layers: 3
-  hidden_dim: 1024
+  hidden_dim: 256
   bidirectional: True
   attention: True
   num_workers: 4
